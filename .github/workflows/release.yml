@@ -1,0 +1,48 @@
+name: Windows release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-fund --no-audit
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Archive and checksum
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: ./scripts/archive-release.ps1
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $assets = @((Get-ChildItem -LiteralPath dist -Filter '*.zip').FullName)
+          $assets += (Resolve-Path -LiteralPath dist/SHA256SUMS.txt).Path
+          $notes = "docs/releases/$env:RELEASE_TAG.md"
+          gh release view "$env:RELEASE_TAG" --json tagName 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload "$env:RELEASE_TAG" @assets --clobber
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if (Test-Path -LiteralPath $notes) {
+              gh release edit "$env:RELEASE_TAG" --title "YMusic $env:RELEASE_TAG" --notes-file $notes
+            }
+          } elseif (Test-Path -LiteralPath $notes) {
+            gh release create "$env:RELEASE_TAG" @assets --verify-tag --title "YMusic $env:RELEASE_TAG" --notes-file $notes
+          } else {
+            gh release create "$env:RELEASE_TAG" @assets --verify-tag --title "YMusic $env:RELEASE_TAG" --generate-notes
+          }

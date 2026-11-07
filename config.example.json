@@ -1,0 +1,6 @@
+{
+  "token": "PASTE_BOT_TOKEN_HERE",
+  "voiceChannelId": "PASTE_VOICE_CHANNEL_ID_HERE",
+  "audioDevice": "CABLE Output (VB-Audio Virtual Cable)",
+  "bitrate": 128000
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>YMusic</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-icon">y<span>♪</span></span><div><strong>YMusic</strong><small>Музыка для своей компании</small></div></div>
+    <div class="header-right"><span id="version">2.0</span><button class="subtle" id="hide" title="Приложение продолжит работать в трее">Свернуть в трей ↘</button></div>
+  </header>
+  <main>
+    <section class="intro"><div><p class="eyebrow">ВАШ ОБЩИЙ ЭФИР</p><h1>Хорошая музыка.<br><span>В хорошей компании.</span></h1></div><span class="status" id="status"><i></i><span id="status-label">Не подключён</span></span></section>
+    <div class="grid">
+      <section class="card player-card">
+        <div class="card-top"><span class="eyebrow">ГОЛОСОВОЙ КАНАЛ</span><button class="text-button" id="refresh">Обновить ↻</button></div>
+        <label for="guild">Сервер</label><select id="guild"><option value="">Подключи аккаунт бота</option></select>
+        <label for="channel">Канал для музыки</label><select id="channel"><option value="">Загрузи список каналов</option></select>
+        <div class="on-air"><div class="disc" id="disc" aria-hidden="true"><div class="disc-center">♪</div></div><img id="track-cover" class="track-cover" alt="Обложка трека" hidden><div class="track-info"><span class="eyebrow" id="air-label">ГОТОВ К ЭФИРУ</span><h2 id="channel-name">Твой следующий плейлист</h2><p id="track-artist" hidden></p><p id="message">Выбери канал и подключи музыку</p><p id="track-time" class="track-time" hidden></p></div></div>
+        <div class="actions"><button class="primary" id="connect">▶ Подключиться</button><button class="secondary" id="disconnect" disabled>Отключиться</button></div>
+        <p class="hint">Выбирай треки в Яндекс Музыке. Каждый слушатель меняет громкость бота у себя в Discord.</p>
+        <div class="meter-block"><div><span>Сигнал с плеера</span><span id="level-label">—</span></div><progress id="meter" max="100" value="0" aria-label="Уровень входного звука"></progress><small id="signal-hint">Индикатор заработает после подключения</small></div>
+      </section>
+      <aside>
+        <section class="card settings-card">
+          <div class="card-top"><span class="eyebrow">НАСТРОЙКИ ЭФИРА</span><span class="pill">На этом компьютере</span></div>
+          <div class="label-row"><label for="capture-mode">Захват звука</label><button class="text-button" id="refresh-devices" title="Обновить источники звука">↻</button></div>
+          <select id="capture-mode"><option value="process">Яндекс Музыка — напрямую, без кабеля</option><option value="device">Аудиоустройство (VB-CABLE)</option></select>
+          <div id="application-group"><label for="application">Приложение</label><select id="application"><option value="">Авто: запущенная Яндекс Музыка</option></select><p class="field-help">Захватывается только звук плеера. Вывод Яндекс Музыки можно вернуть на наушники. Чтобы не слышать музыку дважды, убавь громкость бота у себя в Discord.</p></div>
+          <div id="device-group" hidden><label for="device">Аудиоустройство</label><select id="device"><option value="">Поиск устройств…</option></select><p class="field-help">В микшере Windows направь Яндекс Музыку в <b>CABLE Input</b>. Здесь выбери <b>CABLE Output</b>.</p></div>
+          <label for="dj-role">Кто ещё может управлять музыкой</label><select id="dj-role"><option value="">Только владелец и администраторы</option></select>
+          <p class="field-help">Добавь роль DJ для команд /join, /leave и /status.</p>
+          <label class="checkbox"><input type="checkbox" id="now-playing"><span>Карточка «Сейчас играет» в Discord</span></label>
+          <label for="media-source" class="media-label">Данные о треке</label><select id="media-source"><option value="">Авто: Яндекс Музыка</option></select>
+          <p class="field-help">Одна карточка в текстовом чате голосового канала. Название и обложка берутся из плеера Windows.</p>
+          <label class="checkbox"><input type="checkbox" id="auto-connect"><span>Подключать музыку при запуске</span></label>
+          <label class="checkbox"><input type="checkbox" id="auto-start"><span>Запускать YMusic вместе с Windows</span></label>
+          <details id="account"><summary>Токен бота <span id="token-state">не сохранён</span></summary><label for="token">Новый токен</label><input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="Вставь токен со страницы Bot"><p class="field-help">Токен хранится на этом компьютере в зашифрованном виде. Пустое поле сохраняет текущий токен.</p><button class="text-button" id="portal">Открыть Developer Portal ↗</button></details>
+          <button class="secondary save" id="save">Сохранить настройки</button>
+          <div class="settings-links"><button class="text-button" id="invite">Добавить бота на сервер ↗</button><button class="text-button" id="cable">VB-CABLE ↗</button></div>
+        </section>
+      </aside>
+    </div>
+    <section class="card bottom-card"><div class="commands"><span class="command-icon">/</span><div><strong>Управляй прямо из Discord</strong><p><code>/join</code> в твой канал <span>·</span> <code>/leave</code> отключить <span>·</span> <code>/status</code> состояние</p></div></div><span id="commands-state" class="quiet">Команды появятся после входа</span></section>
+    <details class="diagnostics"><summary>Журнал подключения <span>Только последние события</span></summary><ol id="logs"><li>Здесь появятся события подключения.</li></ol></details>
+    <div id="notice" class="notice" role="status" hidden></div>
+  </main>
+  <footer><span><i></i> Звук остаётся под твоим управлением</span><button class="text-button" id="quit">Завершить YMusic</button></footer>
+  <script src="renderer.js"></script>
+</body>
+</html>

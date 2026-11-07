@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.cache/
+work/
+config.json
+settings.json
+.env
+.env.*
+!.env.example
+*.log
+*.wav
+*.pcm
+*.dmp
+*.pdb
+native/ProcessAudio.exe
+Thumbs.db
+.DS_Store

@@ -1,0 +1,39 @@
+{
+  "name": "ymusic-discord",
+  "version": "2.2.0",
+  "private": true,
+  "description": "Share your Yandex Music desktop player in Discord with driverless process audio capture.",
+  "license": "MIT",
+  "author": "atolife",
+  "repository": { "type": "git", "url": "git+https://github.com/atolife/ymusic-discord.git" },
+  "homepage": "https://github.com/atolife/ymusic-discord#readme",
+  "bugs": { "url": "https://github.com/atolife/ymusic-discord/issues" },
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "start": "node src/index.js start",
+    "setup": "node src/index.js setup",
+    "devices": "node src/index.js devices",
+    "diagnostics": "node src/index.js check",
+    "test": "node --test test/*.test.js",
+    "predesktop": "node scripts/preflight.js",
+    "desktop": "electron .",
+    "check": "node scripts/check-repository.js",
+    "build": "node scripts/package.js",
+    "docs:assets": "node scripts/brand-assets.js",
+    "docs:render": "electron scripts/render-showcase.cjs"
+  },
+  "dependencies": {
+    "@discordjs/voice": "0.19.2",
+    "discord.js": "14.28.1",
+    "ffmpeg-static": "5.3.0",
+    "opusscript": "0.1.1"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "45.2.3"
+  }
+}

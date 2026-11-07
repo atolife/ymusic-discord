@@ -1,0 +1,27 @@
+name: Сообщить об ошибке
+description: Помочь исправить воспроизведение, подключение или интерфейс.
+body:
+  - type: markdown
+    attributes:
+      value: Не прикладывайте токен бота, config.json или settings.json. Перед отправкой скриншотов скройте личные данные.
+  - type: input
+    id: version
+    attributes:
+      label: Версия YMusic и сборка Windows
+      placeholder: YMusic 2.2.0, Windows 11 build 26200
+    validations:
+      required: true
+  - type: dropdown
+    id: capture
+    attributes:
+      label: Способ захвата
+      options:
+        - Прямой захват приложения
+        - VB-CABLE / аудиоустройство
+  - type: textarea
+    id: problem
+    attributes:
+      label: Что произошло и как повторить?
+      description: Опишите ожидаемое поведение и результат. Текст ошибки можно взять из журнала YMusic.
+    validations:
+      required: true
