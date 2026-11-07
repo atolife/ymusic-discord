@@ -26,7 +26,7 @@ function sendState(state) {
     tray.setToolTip(`YMusic · ${state.message}`.slice(0, 120));
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Открыть YMusic', click: showWindow },
-      { label: state.phase === 'online' ? 'Отключить музыку' : 'Подключить музыку', click: () => {
+      { label: state.phase === 'online' ? 'Отключить трансляцию' : 'Подключить трансляцию', click: () => {
         const action = service.state.phase === 'online' ? service.leave() : service.connect(store.value.voiceChannelId);
         action.catch(error => service.log(error));
       } },
@@ -59,7 +59,7 @@ async function boot() {
   try {
     store.load(smoke && !liveSmoke ? [] : [path.join(app.getAppPath(), 'config.json'),
       path.resolve(path.dirname(process.execPath), '../discord-music-bot/config.json')]);
-  } catch { loadError = 'Не удалось открыть сохранённые настройки. Проверь токен и источник звука в настройках.'; }
+  } catch { loadError = 'Не удалось открыть сохранённые настройки. Требуется проверить токен и источник звука в настройках.'; }
   await newService();
   if (loadError) service.log(loadError);
   const icon = nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
@@ -134,6 +134,7 @@ async function dispatch(method, data) {
     return result;
   }
   if (method === 'help') return shell.openExternal('https://vb-audio.com/Cable/');
+  if (method === 'author-github') return shell.openExternal('https://github.com/atolife');
   if (method === 'portal') return shell.openExternal('https://discord.com/developers/applications');
   if (method === 'invite') {
     const client = await service.session();

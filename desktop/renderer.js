@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 let settings = {}, state = {}, busy = false, catalogue = null, lastLogs = '', loadingCatalogue = false, sourceListKey = '';
 let noticeTimer;
-const labels = { offline: 'Не подключён', idle: 'Готов к эфиру', connecting: 'Подключение…', online: 'Музыка в канале', recovering: 'Восстановление…', error: 'Нужно внимание', sleeping: 'Режим сна' };
+const labels = { offline: 'Не подключён', idle: 'Ожидание подключения', connecting: 'Подключение…', online: 'Трансляция активна', recovering: 'Восстановление…', error: 'Ошибка', sleeping: 'Режим сна' };
 
 async function call(method, data) {
   const result = await window.ymusic.call(method, data);
@@ -20,8 +20,8 @@ function render(next) {
   $('status-label').textContent = labels[state.phase] || state.phase;
   $('message').textContent = state.message;
   const track = state.nowPlaying;
-  $('channel-name').textContent = track?.title || state.channelName || 'Твой следующий плейлист';
-  $('air-label').textContent = track ? (state.phase !== 'online' ? 'СЕЙЧАС В ПЛЕЕРЕ' : track.playback === 'Paused' ? 'ПАУЗА' : 'СЕЙЧАС ИГРАЕТ') : state.phase === 'online' ? 'В ПРЯМОМ ЭФИРЕ' : 'ГОТОВ К ЭФИРУ';
+  $('channel-name').textContent = track?.title || state.channelName || 'Канал не выбран';
+  $('air-label').textContent = track ? (state.phase !== 'online' ? 'СЕЙЧАС В ПЛЕЕРЕ' : track.playback === 'Paused' ? 'ПАУЗА' : 'СЕЙЧАС ИГРАЕТ') : state.phase === 'online' ? 'ТРАНСЛЯЦИЯ АКТИВНА' : 'ОЖИДАНИЕ ПОДКЛЮЧЕНИЯ';
   $('track-artist').hidden = !track?.artist; $('track-artist').textContent = track?.artist || '';
   $('track-cover').hidden = !track?.cover; $('disc').hidden = Boolean(track?.cover);
   if (track?.cover) {
@@ -45,9 +45,9 @@ function render(next) {
   const level = Math.round(Math.min(1, state.level || 0) * 100);
   $('meter').value = level;
   $('level-label').textContent = state.phase === 'online' ? `${level}%` : '—';
-  $('signal-hint').textContent = state.phase !== 'online' ? 'Индикатор заработает после подключения'
-    : level ? 'Звук поступает в Discord' : settings.captureMode === 'device' ? 'Тишина: пауза в плеере или не выбран CABLE Input' : 'Тишина: проверь воспроизведение в Яндекс Музыке';
-  $('commands-state').textContent = state.commandsReady ? 'Команды готовы · ответы видны только тебе' : 'Команды появятся после входа';
+  $('signal-hint').textContent = state.phase !== 'online' ? 'Измерение доступно после подключения'
+    : level ? 'Звук поступает в Discord' : settings.captureMode === 'device' ? 'Тишина: пауза в плеере или не выбран CABLE Input' : 'Сигнал отсутствует: требуется проверить воспроизведение в Яндекс Музыке';
+  $('commands-state').textContent = state.commandsReady ? 'Команды зарегистрированы · ответы доступны инициатору' : 'Требуется авторизация бота';
   $('connect').disabled = busy || ['connecting', 'sleeping'].includes(state.phase) || !$('channel').value;
   $('disconnect').disabled = !['online', 'connecting', 'recovering', 'sleeping', 'error'].includes(state.phase);
   if (state.channelId && state.channelId !== previousChannel && $('channel').querySelector(`option[value="${state.channelId}"]`)) $('channel').value = state.channelId;
@@ -77,8 +77,8 @@ async function devices() {
     const items = info.applications.map(app => ({ id: app.path, name: app.name }));
     if (selected && !items.some(item => item.id === selected)) items.push({ id: selected, name: 'Сохранённая Яндекс Музыка — не запущена' });
     options($('application'), items, selected, 'Авто: запущенная Яндекс Музыка');
-    if (!info.supported) notice('Эта Windows не поддерживает прямой захват приложения. Выбери «Аудиоустройство (VB-CABLE)».', true);
-    else if (!info.applications.length) notice('Открой настольную Яндекс Музыку, затем нажми обновление источников.');
+    if (!info.supported) notice('Текущая сборка Windows не поддерживает WASAPI process loopback. Доступен режим «Аудиоустройство (VB-CABLE)».', true);
+    else if (!info.applications.length) notice('Процесс Яндекс Музыки не обнаружен. Требуется запустить плеер и обновить список источников.');
     return;
   }
   const selected = $('device').value || settings.audioDevice;
@@ -92,11 +92,11 @@ async function channels(guildId) {
   loadingCatalogue = true;
   try {
     catalogue = await call('catalogue', { guildId });
-    options($('guild'), catalogue.guilds, catalogue.guildId, catalogue.guilds.length ? undefined : 'Добавь бота на сервер');
+    options($('guild'), catalogue.guilds, catalogue.guildId, catalogue.guilds.length ? undefined : 'Бот не добавлен на сервер');
     options($('channel'), catalogue.channels, state.channelId || settings.voiceChannelId, catalogue.channels.length ? undefined : 'Нет каналов с нужными правами');
     options($('dj-role'), catalogue.roles, settings.djRoleId, 'Только владелец и администраторы');
-    if (!catalogue.guilds.length) notice('Добавь бота на сервер по кнопке в настройках.', true);
-    else if (!catalogue.channels.length) notice('Не найдено голосовых каналов. Проверь права View Channel, Connect и Speak.', true);
+    if (!catalogue.guilds.length) notice('Бот не добавлен на сервер. Ссылка приглашения доступна в настройках.', true);
+    else if (!catalogue.channels.length) notice('Доступные голосовые каналы не обнаружены. Необходимы права View Channel, Connect и Speak.', true);
     render(state);
   } finally { loadingCatalogue = false; }
 }
@@ -126,7 +126,7 @@ $('refresh-devices').onclick = () => action(devices);
 $('capture-mode').onchange = () => action(devices);
 $('guild').onchange = () => action(() => channels($('guild').value));
 $('channel').onchange = () => render(state);
-for (const [id, method] of [['hide', 'hide'], ['quit', 'quit'], ['cable', 'help'], ['portal', 'portal'], ['invite', 'invite']]) {
+for (const [id, method] of [['hide', 'hide'], ['quit', 'quit'], ['cable', 'help'], ['portal', 'portal'], ['invite', 'invite'], ['author-github', 'author-github']]) {
   $(id).onclick = async () => { try { await call(method); } catch (error) { notice(error.message, true); } };
 }
 window.ymusic.onState(render);

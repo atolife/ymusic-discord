@@ -62,7 +62,7 @@ powershell -NoProfile -File scripts/archive-release.ps1
 
 Результат: `dist/YMusic-<version>-win32-x64/` и архив с SHA-256. Сборщик компилирует WASAPI-помощник из исходников и исключает конфиги, Git, тесты, документационные ресурсы и кэш из приложения. Лицензии зависимостей сохраняются.
 
-Для нового релиза обнови версию в `package.json` и `package-lock.json`, добавь заметки `docs/releases/v<version>.md` и отправь тег `v<version>`. Workflow проверяет соответствие тега версии, запускает проверки и сборку, затем публикует ZIP и `SHA256SUMS.txt` в GitHub Releases.
+Для нового релиза обновите версию в `package.json` и `package-lock.json`, добавьте заметки `docs/releases/v<version>.md` и отправьте тег `v<version>`. Workflow проверяет соответствие тега версии, запускает проверки и сборку, затем публикует ZIP и `SHA256SUMS.txt` в GitHub Releases.
 
 CI на Pull Request имеет только `contents: read`. Право публикации `contents: write` используется только в workflow релиза. Actions закреплены за конкретными коммитами.
 
@@ -75,7 +75,7 @@ npm run docs:assets
 npm run docs:render
 ```
 
-Рендер не подключается к Discord, не читает токены и не захватывает звук. SVG-исходники и PNG находятся в `docs/assets/`. `social-preview.png` подготовлен в размере 1280 × 640 для предпросмотра ссылок на репозиторий.
+Рендер не подключается к Discord, не читает токены и не захватывает звук. SVG-исходники и PNG находятся в `docs/assets/`. `social-preview.png` — 1280 × 640 для ссылок на репозиторий. `discord-icon.png` — 1024 × 1024; `discord-banner.png` — 680 × 240.
 
 ## Ссылки на API
 

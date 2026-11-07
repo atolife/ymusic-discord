@@ -29,7 +29,7 @@ export function runFfmpeg(args, { timeoutMs = 15000 } = {}) {
     child.once('error', error => { clearTimeout(timer); reject(error); });
     child.once('close', code => {
       clearTimeout(timer);
-      if (timedOut) reject(new Error('FFmpeg не ответил вовремя. Проверь аудиоустройство.'));
+      if (timedOut) reject(new Error('FFmpeg не ответил вовремя. Проверьте аудиоустройство.'));
       else resolve({ code, stderr });
     });
   });

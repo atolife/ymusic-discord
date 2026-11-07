@@ -20,7 +20,7 @@ async function requireDevices() {
 async function setup() {
   console.log('\nНастройка музыкального бота Discord\n');
   console.log('1. Создай приложение и бота: https://discord.com/developers/applications');
-  console.log('2. На странице Bot нажми Reset Token / Copy. Токен вводится только здесь.');
+  console.log('2. На странице Bot нажмите Reset Token / Copy. Токен вводится только здесь.');
   console.log('3. В Discord включи Режим разработчика, затем скопируй ID голосового канала.\n');
   const devices = await requireDevices();
   let existing = {};
@@ -51,11 +51,11 @@ async function setup() {
     const defaultIndex = previousIndex >= 0 ? previousIndex : cableIndex;
     const choice = (await rl.question(`Номер устройства${defaultIndex >= 0 ? ` [${defaultIndex + 1}]` : ''}: `)).trim();
     const index = choice ? Number(choice) - 1 : defaultIndex;
-    if (!Number.isInteger(index) || !devices[index]) throw new Error('Выбери номер устройства из списка.');
+    if (!Number.isInteger(index) || !devices[index]) throw new Error('Выберите номер устройства из списка.');
     const audioDevice = devices[index];
     if (!/CABLE Output/i.test(audioDevice)) {
       const answer = await rl.question('Выбрано устройство, отличное от CABLE Output. Оно может передавать микрофон или весь звук ПК. Продолжить? [y/N]: ');
-      if (!/^(y|yes|д|да)$/i.test(answer.trim())) throw new Error('Настройка отменена. Выбери CABLE Output после установки VB-CABLE.');
+      if (!/^(y|yes|д|да)$/i.test(answer.trim())) throw new Error('Настройка отменена. Выберите CABLE Output после установки VB-CABLE.');
     }
     const config = validateConfig({ token, voiceChannelId, audioDevice, bitrate: existing.bitrate ?? 128000 });
     console.log('\nПроверяю токен…');
@@ -67,10 +67,10 @@ async function setup() {
     if (!bot.bot) throw new Error('Нужен токен отдельного бота Discord.');
     fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
     console.log(`\nНастройки сохранены. Бот: ${bot.username}`);
-    console.log('Добавь бота на свой сервер по ссылке (View Channel, Connect, Speak):');
+    console.log('Добавьте бота на свой сервер по ссылке (View Channel, Connect, Speak):');
     console.log(`https://discord.com/oauth2/authorize?client_id=${bot.id}&permissions=3146752&scope=bot`);
-    console.log('\nНаправь звук Яндекс Музыки в CABLE Input. У Discord оставь выход на наушники.');
-    console.log('Потом запусти 02-start.cmd. Подробности — в README.md.');
+    console.log('\nНаправьте звук Яндекс Музыки в CABLE Input. У Discord оставьте выход на наушники.');
+    console.log('Потом запустите 02-start.cmd. Подробности — в README.md.');
   } finally { rl.close(); }
 }
 
@@ -90,21 +90,21 @@ async function main() {
     if (fs.existsSync(configPath)) {
       const config = readConfig(); secret = config.token;
       console.log(`\nКанал: ${config.voiceChannelId}\nВыбранный вход: ${config.audioDevice}`);
-      if (!devices.includes(config.audioDevice)) throw new Error('Сохранённое аудиоустройство не найдено. Запусти 01-setup.cmd.');
+      if (!devices.includes(config.audioDevice)) throw new Error('Сохранённое аудиоустройство не найдено. Запустите 01-setup.cmd.');
       console.log('Настройки корректны. Подключение к Discord проверяется при запуске бота.');
-    } else console.log('\nНастройки ещё не сохранены. Запусти 01-setup.cmd.');
+    } else console.log('\nНастройки ещё не сохранены. Запустите 01-setup.cmd.');
     return;
   }
   if (!['start', 'test-audio'].includes(command)) throw new Error('Команды: setup, start, devices, check, test-audio');
   const config = readConfig({ requireToken: command !== 'test-audio' });
   secret = config.token;
   const devices = await requireDevices();
-  if (!devices.includes(config.audioDevice)) throw new Error('Выбранное аудиоустройство не найдено. Запусти 01-setup.cmd.');
+  if (!devices.includes(config.audioDevice)) throw new Error('Выбранное аудиоустройство не найдено. Запустите 01-setup.cmd.');
   if (command === 'test-audio') {
-    console.log(`Включи музыку. Проверяю ${config.audioDevice} в течение 6 секунд…`);
+    console.log(`Запустите воспроизведение. Проверка источника ${config.audioDevice} в течение 6 секунд…`);
     const result = await testAudio(config.audioDevice);
     console.log(`Получено ${(result.bytes / 1024).toFixed(0)} КБ. Уровень сигнала: ${(result.peak * 100).toFixed(1)}%.`);
-    console.log(result.peak > 0.0001 ? 'Звук поступает. Можно запускать бота.' : 'На входе тишина. Проверь музыку и выход плеера: CABLE Input.');
+    console.log(result.peak > 0.0001 ? 'Звук поступает. Можно запускать бота.' : 'На входе тишина. Проверьте музыку и выход плеера: CABLE Input.');
     return;
   }
   await startBot(config);

@@ -1,5 +1,5 @@
 name: Сообщить об ошибке
-description: Помочь исправить воспроизведение, подключение или интерфейс.
+description: Отчёт о сбое воспроизведения, подключения или интерфейса.
 body:
   - type: markdown
     attributes:
@@ -8,7 +8,7 @@ body:
     id: version
     attributes:
       label: Версия YMusic и сборка Windows
-      placeholder: YMusic 2.2.0, Windows 11 build 26200
+      placeholder: YMusic 2.2.1, Windows 11 build 26200
     validations:
       required: true
   - type: dropdown

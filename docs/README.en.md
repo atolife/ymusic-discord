@@ -1,49 +1,53 @@
 <div align="center">
-  <img src="assets/hero.png" width="100%" alt="YMusic — your player, your shared broadcast. Yandex Music to Discord with driverless audio capture.">
+  <img src="assets/hero.png" width="100%" alt="YMusic — local Yandex Music audio capture and Discord Voice transport.">
   <br><br>
-  <h1>Your player. Your people.</h1>
-  <p>Share your Yandex Music desktop player in a Discord voice channel.<br>One dedicated bot. Per-listener volume. No virtual audio cable required.</p>
-  <a href="https://github.com/atolife/ymusic-discord/releases/latest"><b>Download for Windows →</b></a>
+  <a href="https://github.com/atolife/ymusic-discord/releases/latest"><b>Download Windows x64</b></a>
   <br><br>
-  <a href="../README.md">Русский</a> · <b>English</b> · <a href="SETUP.md">Setup guide</a> · <a href="DEVELOPMENT.md">Development</a>
+  <a href="../README.md">Русский</a> · <b>English</b> · <a href="SETUP.md">Configuration</a> · <a href="DEVELOPMENT.md">Development</a>
 </div>
 
-## Keep control in your music player
+## Overview
 
-Pick tracks, change playlists, pause or seek in the Yandex Music desktop app. YMusic captures that application's audio on Windows and sends it through your own Discord bot. Everyone adjusts the bot's volume independently in Discord.
+**YMusic is a local Windows audio bridge between the Yandex Music desktop application and Discord Voice.** WASAPI process loopback captures the player's process tree. A dedicated Discord bot transmits the audio. Playback remains controlled by the desktop player; participants adjust the bot's volume independently in Discord.
 
-- **Driverless capture:** Windows WASAPI process-loopback includes the player and its child processes. It does not automatically fall back to system-wide audio.
-- **Now playing:** a single message in the voice channel's text chat shows the track, artist, cover, playback state and progress.
-- **Profile activity:** the bot's Listening activity follows the current broadcast track, including a pause marker.
-- **Slash commands:** `/join`, `/leave`, `/status`, with owner/admin/DJ-role access.
-- **Tray application:** close the window to keep broadcasting. Optional startup and auto-connect settings.
-- **Recovery:** bounded reconnection attempts after network/audio interruptions and system sleep. Manual disconnects cancel automatic return.
-- **Device fallback:** VB-CABLE remains available as an optional alternative.
+## Capabilities
 
-<img src="assets/app-preview.png" width="100%" alt="The actual YMusic desktop interface with fictional demonstration data.">
+| Component | Implementation |
+| --- | --- |
+| Audio source | Process-tree capture with executable path, PID and creation-time validation. |
+| Audio transport | PCM16, 48 kHz, stereo → Opus → Discord Voice with DAVE. |
+| Track metadata | Title, artist, artwork, playback state and position from Windows media sessions. |
+| Discord output | One updated message in the voice-channel text chat and a text activity on the bot profile. |
+| Commands | `/join`, `/leave`, `/status`; owner, administrator and configured DJ-role access. |
+| Background operation | System tray, optional Windows startup and automatic connection. |
+| Recovery | Bounded retries after network or audio failures and Windows sleep. |
+| Alternative source | DirectShow audio capture through FFmpeg, including VB-CABLE. |
 
-<sub>The interface is real; the server, track and connection details in this illustration are fictional.</sub>
+## Interface
 
-## Quick start
+<img src="assets/app-preview.png" width="100%" alt="YMusic interface with channel selection, capture settings, track metadata and audio meter.">
 
-1. Download the ZIP from **[Releases](https://github.com/atolife/ymusic-discord/releases/latest)**, extract the entire folder and run `YMusic.exe`. A packaged release does not require Node.js.
-2. Create a bot in the **[Discord Developer Portal](https://discord.com/developers/applications)**. Save its token locally in YMusic, then use the in-app invitation button to add it to your server.
-3. Open the Yandex Music desktop player. Choose a server and voice channel in YMusic, keep direct application capture selected, and connect.
+<sub>Interface screenshot using demonstration metadata. No token or personal settings are used.</sub>
 
-If you hear both the local player and the delayed bot, set **the bot's volume to 0 for yourself** in Discord. Other listeners are unaffected.
+## Installation
 
-## Requirements and limits
+1. Download the Windows x64 ZIP from [Releases](https://github.com/atolife/ymusic-discord/releases/latest), extract the complete archive and run `YMusic.exe`. Node.js is not required for packaged builds.
+2. Create a bot in the [Discord Developer Portal](https://discord.com/developers/applications). Store its token in YMusic and add the bot to the server using the invitation button.
+3. Start the Yandex Music desktop player. Select the server, voice channel and WASAPI source in YMusic, then connect.
 
-- Windows x64, build **20348 or newer**, with process-loopback support. Windows 11 is the primary target.
-- Yandex Music desktop application with working playback.
-- Your own Discord bot and permission to add it to the server.
-- The Windows PC, player and YMusic must remain running while listening.
+When monitoring the player locally, set the bot's volume to 0 in the local Discord client to avoid delayed duplicate audio. This does not affect other participants. Required permissions are documented in the [configuration guide](SETUP.md).
 
-This is a local audio bridge, not a cloud-hosted music service. Spotify and phone-only playback control are outside the current scope. Normal voice channels are supported; Stage channels are not.
+## Requirements and limitations
 
-YMusic reads track information from Windows media sessions. It does not need a Yandex account token or password. The Discord token is stored locally using Windows-backed encryption; YMusic does not write audio recordings to disk. Privileged Gateway Intents are not required.
-
-The track card needs View Channel, Send Messages, Embed Links, Attach Files and Read Message History in the target channel. See the **[setup guide](SETUP.md)** for details. Use only audio you are allowed to share and follow your music service's terms.
+- Windows x64 build **20348+** with process-loopback support; Windows 11 is the primary target.
+- Yandex Music desktop application and an active local playback session.
+- A Discord bot with permission to connect and transmit audio in the target channel.
+- The PC, player and YMusic must remain running throughout the session.
+- Spotify integration, phone-only control and Stage channels are not supported.
+- Missing target processes cause capture to fail; system-wide audio is not used as an automatic fallback.
+- Yandex account credentials are not required. The Discord token is stored locally using Windows-backed encryption. Audio recordings are not written to disk.
+- Privileged Gateway Intents are not required. Track-card progress updates approximately every 10 seconds; bot activity updates at most once every 6 seconds. New track metadata is not published after disconnection.
+- Packaged builds are not digitally signed.
 
 ## Build from source
 
@@ -54,7 +58,7 @@ npm ci
 npm run desktop
 ```
 
-Windows x64 and Node.js **22.12+** are required. The WASAPI helper is built from `native/ProcessAudio.cs` using the Windows .NET Framework compiler.
+Windows x64 and Node.js **22.12+** are required. The WASAPI helper is compiled from source using the Windows .NET Framework compiler.
 
 ```powershell
 npm run check
@@ -62,4 +66,16 @@ npm test
 npm run build
 ```
 
-See **[development](DEVELOPMENT.md)** and **[changelog](../CHANGELOG.md)**. Original code and artwork are **[MIT licensed](../LICENSE)**; dependencies retain their licenses as listed in **[third-party notices](../THIRD_PARTY_NOTICES.md)**. Independent project, not affiliated with Yandex or Discord.
+[Architecture](DEVELOPMENT.md) · [Changelog](../CHANGELOG.md) · [Issue tracker](https://github.com/atolife/ymusic-discord/issues/new/choose)
+
+## Discord assets
+
+[Icon 1024 × 1024](assets/discord-icon.png) · [Banner 680 × 240](assets/discord-banner.png). PNG format; each file is under 10 MB.
+
+## Credentials
+
+**@Atolife** — Discord / [GitHub](https://github.com/atolife)
+
+## License
+
+Original code and artwork are [MIT licensed](../LICENSE). Dependencies retain the licenses listed in [third-party notices](../THIRD_PARTY_NOTICES.md). Independent project, not affiliated with Yandex or Discord. Audio distribution must comply with the music service's terms and applicable content rights.

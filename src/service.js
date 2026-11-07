@@ -13,7 +13,7 @@ import { RecoveryScheduler, canControl, inviteUrl } from './recovery.js';
 import { ActivityUpdater } from './activity.js';
 
 export const commandDefinitions = [
-  ['join', 'Подключить музыку в твой голосовой канал'],
+  ['join', 'Подключить бота к текущему голосовому каналу'],
   ['leave', 'Отключить музыкального бота от канала'],
   ['status', 'Показать состояние музыки и подключения'],
 ].map(([name, description]) => new SlashCommandBuilder().setName(name).setDescription(description).toJSON());
@@ -81,7 +81,7 @@ export class MusicService extends EventEmitter {
       };
       const onReady = () => finish();
       const onAbort = () => finish(new Error('Подключение отменено.'));
-      const timer = setTimeout(() => finish(new Error('Discord не ответил за 30 секунд. Проверь интернет.')), 30000);
+      const timer = setTimeout(() => finish(new Error('Discord не ответил за 30 секунд. Проверьте интернет.')), 30000);
       client.once(Events.ClientReady, onReady);
       this.sessionAbort.signal.addEventListener('abort', onAbort, { once: true });
     });
@@ -92,14 +92,14 @@ export class MusicService extends EventEmitter {
         await client.application.fetch();
         const owner = client.application.owner;
         this.applicationOwnerId = owner?.ownerId ?? owner?.id ?? '';
-        this.update({ phase: 'idle', message: 'Выбери канал для музыки', botName: client.user.username, applicationId: client.user.id });
+        this.update({ phase: 'idle', message: 'Выберите голосовой канал', botName: client.user.username, applicationId: client.user.id });
         this.log(`Вход выполнен: ${client.user.username}`);
         return client;
       } catch (error) {
         this.sessionAbort?.abort();
         await client.destroy();
         if (this.client === client) this.client = null;
-        if (!this.closed) this.update({ phase: 'error', message: 'Не удалось войти в Discord. Проверь сеть и токен.' });
+        if (!this.closed) this.update({ phase: 'error', message: 'Не удалось войти в Discord. Проверьте сеть и токен.' });
         throw error;
       } finally { this.loginPromise = null; }
     })();
@@ -148,7 +148,7 @@ export class MusicService extends EventEmitter {
   }
 
   async connect(channelId = this.config.voiceChannelId) {
-    if (!/^\d{17,20}$/.test(channelId ?? '')) throw new Error('Выбери голосовой канал.');
+    if (!/^\d{17,20}$/.test(channelId ?? '')) throw new Error('Выберите голосовой канал.');
     const epoch = ++this.intent;
     this.stopAudio();
     this.wantedChannel = channelId;
@@ -206,7 +206,7 @@ export class MusicService extends EventEmitter {
     if (epoch !== this.intent || this.connection !== connection || this.closed || this.suspended) return;
     if (!this.capture) this.startAudio(channel.bitrate);
     // Reset the retry budget only after PCM actually arrives, not after a voice handshake.
-    this.update({ phase: 'online', message: 'Музыка в канале', retryAttempt: this.recovery.attempt });
+    this.update({ phase: 'online', message: 'Трансляция активна', retryAttempt: this.recovery.attempt });
     try { await this.registerCommands(channel.guild); } catch (error) { this.log(`Команды: ${redact(error.message, this.config.token)}`); }
   }
 
@@ -253,7 +253,7 @@ export class MusicService extends EventEmitter {
     if (/TokenInvalid|invalid token|токен|401\b/i.test(`${error.code ?? ''} ${error.message}`)) {
       this.wantedChannel = ''; this.recovery.cancel();
       this.dropConnection();
-      this.update({ phase: 'error', message: 'Проверь токен бота в настройках.' }); return;
+      this.update({ phase: 'error', message: 'Проверьте токен бота в настройках.' }); return;
     }
     const epoch = this.intent;
     const next = this.recovery.next(async () => {
@@ -266,12 +266,12 @@ export class MusicService extends EventEmitter {
     });
     if (!next) {
       this.dropConnection();
-      this.update({ phase: 'error', message: 'Не удалось восстановить соединение. Проверь сеть и аудиоустройство, затем нажми «Подключиться».' });
+      this.update({ phase: 'error', message: 'Не удалось восстановить соединение. Проверьте сеть и аудиоустройство, затем нажмите «Подключиться».' });
     } else this.update({ phase: 'recovering', retryAttempt: next.attempt,
       message: `Восстановление соединения · попытка ${next.attempt}/${this.recovery.delays.length}` });
   }
 
-  manualDisconnect(message = 'Музыка отключена') {
+  manualDisconnect(message = 'Трансляция отключена') {
     ++this.intent; this.wantedChannel = ''; this.recovery.reset(); this.dropConnection();
     this.update({ phase: this.client?.isReady() ? 'idle' : 'offline', message, channelId: '', channelName: '', retryAttempt: 0 });
   }
@@ -295,7 +295,7 @@ export class MusicService extends EventEmitter {
   resume() {
     if (!this.suspended) return;
     this.suspended = false;
-    if (this.wantedChannel) { this.recovery.reset(); this.failed(new Error('Компьютер проснулся. Восстанавливаю музыку…')); }
+    if (this.wantedChannel) { this.recovery.reset(); this.failed(new Error('Выход из режима сна. Восстановление аудиотрансляции…')); }
     else this.update({ phase: this.client?.isReady() ? 'idle' : 'offline', message: 'Готов к подключению' });
   }
 
@@ -317,9 +317,9 @@ export class MusicService extends EventEmitter {
         const member = await interaction.guild.members.fetch(interaction.user.id);
         if (!member.voice.channelId) throw new Error('Сначала зайди в голосовой канал.');
         await this.connect(member.voice.channelId);
-        await interaction.editReply(this.state.phase === 'online' ? `Музыка подключена: ${this.state.channelName}` : this.state.message);
+        await interaction.editReply(this.state.phase === 'online' ? `Трансляция активна: ${this.state.channelName}` : this.state.message);
       } else if (interaction.commandName === 'leave') {
-        await this.leave(); await interaction.editReply('Музыка отключена. Бот остаётся доступен для /join.');
+        await this.leave(); await interaction.editReply('Трансляция отключена. Бот остаётся доступен для /join.');
       } else await interaction.editReply(`${this.state.message}${this.state.channelName ? `\nКанал: ${this.state.channelName}` : ''}\nИсточник: ${this.state.sourceLabel || this.config.audioDevice}`);
     } catch (error) {
       const message = redact(error.message, this.config.token);

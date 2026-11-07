@@ -1,13 +1,18 @@
 {
   "name": "ymusic-discord",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "description": "Share your Yandex Music desktop player in Discord with driverless process audio capture.",
   "license": "MIT",
   "author": "atolife",
-  "repository": { "type": "git", "url": "git+https://github.com/atolife/ymusic-discord.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atolife/ymusic-discord.git"
+  },
   "homepage": "https://github.com/atolife/ymusic-discord#readme",
-  "bugs": { "url": "https://github.com/atolife/ymusic-discord/issues" },
+  "bugs": {
+    "url": "https://github.com/atolife/ymusic-discord/issues"
+  },
   "type": "module",
   "main": "desktop/main.cjs",
   "engines": {

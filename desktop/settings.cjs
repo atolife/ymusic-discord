@@ -35,7 +35,7 @@ class SettingsStore {
       if (next[key] && !/^\d{17,20}$/.test(next[key])) throw new Error(`Некорректный ID: ${key}.`);
     }
     next.audioDevice = String(value.audioDevice ?? defaults.audioDevice).trim();
-    if (!next.audioDevice || /[\0\r\n]/.test(next.audioDevice)) throw new Error('Выбери корректное аудиоустройство.');
+    if (!next.audioDevice || /[\0\r\n]/.test(next.audioDevice)) throw new Error('Выберите корректное аудиоустройство.');
     next.bitrate = value.bitrate ?? defaults.bitrate;
     if (!Number.isInteger(next.bitrate) || next.bitrate < 16000 || next.bitrate > 384000) throw new Error('Некорректный битрейт.');
     next.token = String(value.token ?? '').trim();
@@ -46,7 +46,7 @@ class SettingsStore {
     if (!['process', 'device'].includes(next.captureMode)) throw new Error('Некорректный способ захвата звука.');
     next.applicationPath = String(value.applicationPath ?? '').trim();
     if (next.applicationPath && (!/(?:^|[\\/])(?:Яндекс Музыка|YandexMusic)\.exe$/i.test(next.applicationPath)
-      || /[\0\r\n]/.test(next.applicationPath) || next.applicationPath.length > 4096)) throw new Error('Выбери приложение Яндекс Музыки из списка.');
+      || /[\0\r\n]/.test(next.applicationPath) || next.applicationPath.length > 4096)) throw new Error('Выберите приложение Яндекс Музыки из списка.');
     next.nowPlayingEnabled = value.nowPlayingEnabled !== false;
     next.mediaSourceId = String(value.mediaSourceId ?? '').trim();
     if (next.mediaSourceId.length > 1024 || /[\0\r\n]/.test(next.mediaSourceId)) throw new Error('Некорректный источник сведений о треке.');

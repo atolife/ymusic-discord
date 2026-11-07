@@ -66,7 +66,7 @@ export async function startBot(config) {
       ]);
       await entersState(connection, VoiceConnectionStatus.Ready, 30000);
     } catch {
-      await shutdown(new Error('Голосовое соединение прервано. Проверь сеть и права бота, затем запусти 02-start.cmd.'));
+      await shutdown(new Error('Голосовое соединение прервано. Проверьте сеть и права бота, затем запустите 02-start.cmd.'));
     } finally { recoveryRunning = false; }
   }
 
@@ -88,7 +88,7 @@ export async function startBot(config) {
   client.on(Events.VoiceStateUpdate, (oldState, newState) => {
     if (!connection || newState.id !== client.user?.id) return;
     if (oldState.channelId && !newState.channelId) {
-      void shutdown(new Error('Бота отключили от голосового канала. Для подключения снова запусти 02-start.cmd.'));
+      void shutdown(new Error('Бота отключили от голосового канала. Для подключения снова запустите 02-start.cmd.'));
     }
   });
 
@@ -136,14 +136,14 @@ export async function startBot(config) {
       if (!capture) return;
       const age = Date.now() - (capture.meter.lastDataAt || Date.now());
       if ((!capture.meter.bytes && ++silentTicks >= 2) || age > 15000) {
-        void shutdown(new Error('Устройство перестало передавать аудио. Проверь VB-CABLE и запусти бота снова.'));
+        void shutdown(new Error('Устройство перестало передавать аудио. Проверьте VB-CABLE и запустите бота снова.'));
         return;
       }
       if (capture.meter.takePeak() < 0.0001) {
-        log('На входе тишина. Если музыка играет, проверь выход Яндекс Музыки: CABLE Input.');
+        log('На входе тишина. Если музыка играет, проверьте выход Яндекс Музыки: CABLE Input.');
       } else silentTicks = 0;
     }, 15000);
-    log('Готово. Управляй музыкой в плеере. Для остановки нажми Ctrl+C.');
+    log('Готово. Управление воспроизведением доступно в плеере. Для остановки нажмите Ctrl+C.');
     await finished;
   } catch (error) { await shutdown(error); }
   finally {

@@ -30,9 +30,9 @@ export function listApplications() {
   });
 }
 export function selectApplication(info, executable = '') {
-  if (!info.supported) throw new Error('Прямой захват требует Windows build 20348 или новее. Выбери аудиоустройство VB-CABLE.');
+  if (!info.supported) throw new Error('Прямой захват требует Windows build 20348 или новее. Выберите аудиоустройство VB-CABLE.');
   const matches = executable ? info.applications.filter(item => item.path.toLowerCase() === executable.toLowerCase()) : info.applications;
-  if (!matches.length) throw new Error('Открой настольную Яндекс Музыку. Затем повтори подключение или обнови список приложений.');
+  if (!matches.length) throw new Error('Откройте настольную Яндекс Музыку. Затем повторите подключение или обновите список приложений.');
   if (matches.length !== 1) throw new Error('Найдено несколько экземпляров Яндекс Музыки. Оставь запущенным один экземпляр.');
   return matches[0];
 }
@@ -49,7 +49,7 @@ export async function resolveCaptureSource(config, dependencies = {}) {
   }
   if (config.captureMode !== 'device') throw new Error('Неизвестный способ захвата звука.');
   const { devices } = await (dependencies.listDevices ?? listDevices)();
-  if (!devices.includes(config.audioDevice)) throw new Error('Выбранное аудиоустройство недоступно. Проверь его подключение.');
+  if (!devices.includes(config.audioDevice)) throw new Error('Выбранное аудиоустройство недоступно. Проверьте его подключение.');
   return { mode: 'device', audioDevice: config.audioDevice, label: config.audioDevice };
 }
 export function openProcessCapture(application, onFailure) {

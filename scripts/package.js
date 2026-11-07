@@ -16,7 +16,7 @@ const result = await packager({
   electronVersion: '45.2.3',
   icon: path.join(root, 'desktop/icon.ico'), asar: false, prune: true, overwrite: true,
   appVersion: pkg.version, buildVersion: pkg.version, appCopyright: 'Copyright 2026 atolife — YMusic',
-  win32metadata: { CompanyName: 'YMusic', FileDescription: 'YMusic — музыка в Discord', ProductName: 'YMusic' },
+  win32metadata: { CompanyName: 'YMusic', FileDescription: 'YMusic — WASAPI to Discord Voice', ProductName: 'YMusic' },
   ignore: [/^\/config\.json$/, /^\/settings\.json$/, /^\/\.env(?:\.|$)/, /^\/(?:dist|docs|work|test|scripts|\.cache|\.git|\.github)($|\/)/, /\.log$/, /^\/\.gitignore$/, /^\/\.gitattributes$/],
 });
 for (const directory of result) {
